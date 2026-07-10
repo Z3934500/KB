@@ -1,0 +1,25 @@
+trigger:
+  paths:
+    include:
+      - corporate-knowledge-base-poc/*
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.12"
+
+  - script: |
+      python -m pip install -r requirements.txt
+      python -m pip install -e .
+      python -m unittest discover -s tests
+    displayName: Test corporate KB
+    workingDirectory: corporate-knowledge-base-poc
+
+  - script: |
+      python -m corp_kb.cli ingest --tier medium
+      python -m corp_kb.cli query --tier medium "Where should metadata filters be enforced?" --department platform
+    displayName: RAG evaluation smoke test
+    workingDirectory: corporate-knowledge-base-poc

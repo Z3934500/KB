@@ -1,0 +1,16 @@
+bundle:
+  name: corporate-kb-eval
+
+resources:
+  jobs:
+    rag_evaluation:
+      name: corporate-kb-rag-evaluation
+      tasks:
+        - task_key: run_eval
+          spark_python_task:
+            python_file: ./eval/rag_eval.py
+
+targets:
+  dev:
+    mode: development
+    default: true

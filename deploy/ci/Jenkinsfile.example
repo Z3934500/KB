@@ -1,0 +1,31 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Test') {
+      steps {
+        dir('corporate-knowledge-base-poc') {
+          sh 'python3 -m pip install -r requirements.txt'
+          sh 'python3 -m pip install -e .'
+          sh 'python3 -m unittest discover -s tests'
+        }
+      }
+    }
+
+    stage('RAG Eval') {
+      steps {
+        dir('corporate-knowledge-base-poc') {
+          sh 'python3 -m corp_kb.cli ingest --tier medium'
+          sh 'python3 -m corp_kb.cli query --tier medium "Where should metadata filters be enforced?" --department platform'
+        }
+      }
+    }
+
+    stage('Deploy Dev') {
+      when { branch 'main' }
+      steps {
+        echo 'Run Terraform/GitOps deployment here.'
+      }
+    }
+  }
+}

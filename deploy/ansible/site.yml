@@ -1,0 +1,24 @@
+---
+- name: Bootstrap corporate KB VM
+  hosts: corporate_kb
+  become: true
+  vars:
+    app_dir: /opt/corporate-knowledge-base-poc
+  tasks:
+    - name: Install packages
+      package:
+        name:
+          - python3
+          - git
+          - nginx
+        state: present
+
+    - name: Create app directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Reminder
+      debug:
+        msg: "Use Terraform for VPC/subnets/security groups/EIP. Use Ansible only for VM bootstrap."

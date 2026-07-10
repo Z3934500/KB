@@ -1,0 +1,43 @@
+stages:
+  - test
+  - package
+  - image
+  - infra_plan
+  - rag_eval
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+test:
+  image: python:3.12
+  stage: test
+  script:
+    - python -m pip install -r requirements.txt
+    - python -m pip install -e .
+    - python -m unittest discover -s tests
+
+package:
+  image: python:3.12
+  stage: package
+  script:
+    - python -m pip install build
+    - python -m build
+  artifacts:
+    paths:
+      - dist/
+
+rag_eval:
+  image: python:3.12
+  stage: rag_eval
+  script:
+    - python -m pip install -r requirements.txt
+    - python -m pip install -e .
+    - python -m corp_kb.cli ingest --tier medium
+    - python -m corp_kb.cli query --tier medium "Where should metadata filters be enforced?" --department platform
+
+deploy_dev:
+  stage: deploy
+  when: manual
+  script:
+    - echo "Deploy app image and infrastructure through Terraform/GitOps here."
